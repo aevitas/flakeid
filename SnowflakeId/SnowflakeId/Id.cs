@@ -36,6 +36,8 @@ namespace SnowflakeId
         private long _value;
 
         private static int s_increment;
+        // Calling Process.GetCurrentProcess() is a very slow operation, as it has to query the operating system.
+        // Because it's highly unlikely the process ID will change (if at all possible) during our run time, we'll cache it.
         private static int? s_processId;
 
         private const int TimestampBits = 42;
@@ -81,6 +83,16 @@ namespace SnowflakeId
 
         public static implicit operator long(Id id) => id._value;
 
+        public static bool operator ==(Id left, Id right) => left._value == right._value;
+
+        public static bool operator !=(Id left, Id right) => !(left == right);
+
         public int CompareTo(Id other) => _value.CompareTo(other._value);
+
+        public bool Equals(Id other) => _value == other._value;
+
+        public override bool Equals(object obj) => obj is Id other && Equals(other);
+        
+        public override int GetHashCode() => _value.GetHashCode();
     }
 }
