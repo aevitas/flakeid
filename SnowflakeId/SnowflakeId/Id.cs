@@ -1,10 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace SnowflakeId
 {
     [DebuggerDisplay("{_value}")]
-    public struct Id
+    public struct Id : IComparable<Id>
     {
         // This implementation of Snowflake ID is based on the specification as published by Discord:
         // https://discord.com/developers/docs/reference
@@ -79,5 +80,7 @@ namespace SnowflakeId
         }
 
         public static implicit operator long(Id id) => id._value;
+
+        public int CompareTo(Id other) => _value.CompareTo(other._value);
     }
 }

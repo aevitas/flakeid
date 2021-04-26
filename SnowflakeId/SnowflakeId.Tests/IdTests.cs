@@ -47,8 +47,17 @@ namespace SnowflakeId.Tests
             // This test should never fail so long as Id is a struct.
             var left = new Id(5956206959003041793);
             var right = new Id(5956206959003041793);
-
+            
             Assert.AreEqual(left, right);
+        }
+
+        [TestMethod]
+        public void Id_Sortable()
+        {
+            var ids = Enumerable.Range(0, 1000).Select(_ => Id.Create()).ToArray();
+            var sorted = ids.OrderBy(i => i).ToArray();
+            
+            Assert.IsTrue(ids.SequenceEqual(sorted));
         }
     }
 }
