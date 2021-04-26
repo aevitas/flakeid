@@ -35,6 +35,7 @@ namespace SnowflakeId
         private long _value;
 
         private static int s_increment;
+        private static int? s_processId;
 
         private const int TimestampBits = 42;
         private const int ThreadIdBits = 5;
@@ -62,7 +63,8 @@ namespace SnowflakeId
             long milliseconds = MonotonicTimer.ElapsedMilliseconds;
             long timestamp = milliseconds & TimestampMask;
             int threadId = Thread.CurrentThread.ManagedThreadId & ThreadIdMask;
-            int processId = Process.GetCurrentProcess().Id & ProcessIdMask;
+            int? processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
+            int procId = processId.Value;
 
             Interlocked.Increment(ref s_increment);
 
@@ -72,19 +74,11 @@ namespace SnowflakeId
             {
                 _value = (timestamp << (ThreadIdBits + ProcessIdBits + IncrementBits))
                          + (threadId << (ProcessIdBits + IncrementBits))
-                         + (processId << IncrementBits)
+                         + (procId << IncrementBits)
                          + increment;
             }
         }
 
         public static implicit operator long(Id id) => id._value;
-    }
-
-    internal static class MonotonicTimer
-    {
-        internal const long Epoch = 1420070400000; // First second of 01-01-2015
-        private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-
-        public static long ElapsedMilliseconds => Epoch + _stopwatch.ElapsedMilliseconds;
     }
 }

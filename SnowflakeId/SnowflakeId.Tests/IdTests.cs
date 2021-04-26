@@ -18,7 +18,7 @@ namespace SnowflakeId.Tests
         }
 
         [TestMethod]
-        public async Task Id_CreateMany()
+        public void Id_CreateMany()
         {
             var ids = Enumerable.Range(0, 1000).Select(_ => Id.Create()).ToArray();
 
@@ -39,6 +39,16 @@ namespace SnowflakeId.Tests
             
             foreach (var id in ids)
                 Assert.IsTrue(ids.Count(i => i == id) == 1);
+        }
+
+        [TestMethod]
+        public void Id_Equality()
+        {
+            // This test should never fail so long as Id is a struct.
+            var left = new Id(5956206959003041793);
+            var right = new Id(5956206959003041793);
+
+            Assert.AreEqual(left, right);
         }
     }
 }
