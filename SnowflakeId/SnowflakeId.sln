@@ -5,6 +5,14 @@ VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowflakeId", "SnowflakeId\SnowflakeId.csproj", "{4DF32548-8633-4E51-9BF4-0AC9042650A0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7F629EC4-C1A0-40AB-A669-40C0EA4FEA1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowflakeId.Tests", "SnowflakeId.Tests\SnowflakeId.Tests.csproj", "{25976660-FD2A-4087-8997-8FD82DA3E323}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{7245ED8E-488C-4A88-8A27-751BD58E3945}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowflakeId.Benchmarks", "SnowflakeId.Benchmarks\SnowflakeId.Benchmarks.csproj", "{2956883E-A57A-4B36-8D32-C455AD2199C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +23,21 @@ Global
 		{4DF32548-8633-4E51-9BF4-0AC9042650A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DF32548-8633-4E51-9BF4-0AC9042650A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DF32548-8633-4E51-9BF4-0AC9042650A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25976660-FD2A-4087-8997-8FD82DA3E323}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25976660-FD2A-4087-8997-8FD82DA3E323}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25976660-FD2A-4087-8997-8FD82DA3E323}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25976660-FD2A-4087-8997-8FD82DA3E323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2956883E-A57A-4B36-8D32-C455AD2199C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2956883E-A57A-4B36-8D32-C455AD2199C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2956883E-A57A-4B36-8D32-C455AD2199C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2956883E-A57A-4B36-8D32-C455AD2199C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{25976660-FD2A-4087-8997-8FD82DA3E323} = {7F629EC4-C1A0-40AB-A669-40C0EA4FEA1F}
+		{2956883E-A57A-4B36-8D32-C455AD2199C5} = {7245ED8E-488C-4A88-8A27-751BD58E3945}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0AFC1E75-B011-464A-B6E3-3BD3AEF1F943}

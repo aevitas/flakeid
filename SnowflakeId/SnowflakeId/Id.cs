@@ -3,6 +3,7 @@ using System.Threading;
 
 namespace SnowflakeId
 {
+    [DebuggerDisplay("{_value}")]
     public struct Id
     {
         // This implementation of Snowflake ID is based on the specification as published by Discord:
@@ -45,14 +46,11 @@ namespace SnowflakeId
         private const int ProcessIdMask = (1 << ProcessIdBits) - 1;
         private const int IncrementMask = (1 << IncrementBits) - 1;
 
-        public Id(long value)
-        {
-            _value = value;
-        }
+        public Id(long value) => _value = value;
 
         public static Id Create()
         {
-            var id = new Id();
+            Id id = new Id();
 
             id.CreateInternal();
 
@@ -61,14 +59,14 @@ namespace SnowflakeId
 
         private void CreateInternal()
         {
-            var milliseconds = MonotonicTimer.ElapsedMilliseconds;
-            var timestamp = milliseconds & TimestampMask;
-            var threadId = Thread.CurrentThread.ManagedThreadId & ThreadIdMask;
-            var processId = Process.GetCurrentProcess().Id & ProcessIdMask;
+            long milliseconds = MonotonicTimer.ElapsedMilliseconds;
+            long timestamp = milliseconds & TimestampMask;
+            int threadId = Thread.CurrentThread.ManagedThreadId & ThreadIdMask;
+            int processId = Process.GetCurrentProcess().Id & ProcessIdMask;
 
             Interlocked.Increment(ref s_increment);
 
-            var increment = s_increment & IncrementMask;
+            int increment = s_increment & IncrementMask;
 
             unchecked
             {
@@ -78,23 +76,15 @@ namespace SnowflakeId
                          + increment;
             }
         }
-        
-        public static implicit operator long(Id id)
-        {
-            return id._value;
-        }
+
+        public static implicit operator long(Id id) => id._value;
     }
 
     internal static class MonotonicTimer
     {
-        private static readonly Stopwatch Stopwatch;
-        private const long Epoch = 1420070400000; // First second of 01-01-2015
+        internal const long Epoch = 1420070400000; // First second of 01-01-2015
+        private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
-        public static long ElapsedMilliseconds => Epoch + Stopwatch.ElapsedMilliseconds;
-
-        static MonotonicTimer()
-        {
-            Stopwatch = Stopwatch.StartNew();
-        }
+        public static long ElapsedMilliseconds => Epoch + _stopwatch.ElapsedMilliseconds;
     }
 }
