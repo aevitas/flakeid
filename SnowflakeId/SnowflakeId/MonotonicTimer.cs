@@ -13,10 +13,10 @@ namespace SnowflakeId
         private static long GetEpoch()
         {
             // 1420070400000
-            long epoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, 0, TimeSpan.Zero).ToUnixTimeMilliseconds();
-            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            DateTimeOffset epoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, 0, TimeSpan.Zero);
+            TimeSpan deltaNow = DateTimeOffset.UtcNow - epoch;
 
-            return now - epoch;
+            return epoch.ToUnixTimeMilliseconds() + (long) deltaNow.TotalMilliseconds;
         }
     }
 }
