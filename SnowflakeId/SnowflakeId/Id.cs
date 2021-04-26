@@ -63,8 +63,7 @@ namespace SnowflakeId
             long milliseconds = MonotonicTimer.ElapsedMilliseconds;
             long timestamp = milliseconds & TimestampMask;
             int threadId = Thread.CurrentThread.ManagedThreadId & ThreadIdMask;
-            int? processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
-            int procId = processId.Value;
+            int processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
 
             Interlocked.Increment(ref s_increment);
 
@@ -74,7 +73,7 @@ namespace SnowflakeId
             {
                 _value = (timestamp << (ThreadIdBits + ProcessIdBits + IncrementBits))
                          + (threadId << (ProcessIdBits + IncrementBits))
-                         + (procId << IncrementBits)
+                         + (processId << IncrementBits)
                          + increment;
             }
         }
