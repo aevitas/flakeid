@@ -5,10 +5,10 @@ namespace SnowflakeId
 {
     internal static class MonotonicTimer
     {
-        private static long? _epoch;
-        private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+        private static long? s_epoch;
+        private static readonly Stopwatch s_stopwatch = Stopwatch.StartNew();
 
-        public static long ElapsedMilliseconds => _epoch ??= GetEpoch() + _stopwatch.ElapsedMilliseconds;
+        public static long ElapsedMilliseconds => s_epoch ??= GetEpoch() + s_stopwatch.ElapsedMilliseconds;
 
         private static long GetEpoch()
         {
@@ -16,7 +16,7 @@ namespace SnowflakeId
             DateTimeOffset epoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, 0, TimeSpan.Zero);
             TimeSpan deltaNow = DateTimeOffset.UtcNow - epoch;
 
-            return epoch.ToUnixTimeMilliseconds() + (long) deltaNow.TotalMilliseconds;
+            return (long) deltaNow.TotalMilliseconds;
         }
     }
 }
