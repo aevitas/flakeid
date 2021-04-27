@@ -18,7 +18,7 @@ namespace SnowflakeId.Tests
         }
 
         [TestMethod]
-        public void Id_CreateMany()
+        public void Id_CreateManyFast()
         {
             var ids = Enumerable.Range(0, 1000).Select(_ => Id.Create()).ToArray();
 
@@ -54,6 +54,7 @@ namespace SnowflakeId.Tests
         [TestMethod]
         public void Id_Sortable()
         {
+            // The sequence in which Ids are generated should be equal to a set of sorted Ids.
             var ids = Enumerable.Range(0, 1000).Select(_ => Id.Create()).ToArray();
             var sorted = ids.OrderBy(i => i).ToArray();
             
