@@ -72,7 +72,6 @@ namespace SnowflakeId
 
             int increment = s_increment & IncrementMask;
             
-            // If more than 2^31-1 IDs are generated in a single lifespan of a process, the increment counter will overflow. Do we care?
             unchecked
             {
                 _value = (timestamp << (ThreadIdBits + ProcessIdBits + IncrementBits))
