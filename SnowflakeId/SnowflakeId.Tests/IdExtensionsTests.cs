@@ -17,5 +17,15 @@ namespace SnowflakeId.Tests
 
             Assert.IsTrue(delta.Seconds <= 1);
         }
+
+        [TestMethod]
+        public void Id_ToUnixTimeMilliseconds()
+        {
+            var id = Id.Create();
+            long timestamp = id.ToUnixTimeMilliseconds();
+            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            
+            Assert.IsTrue(now - timestamp < 100);
+        }
     }
 }

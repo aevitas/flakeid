@@ -6,10 +6,14 @@ namespace SnowflakeId.Extensions
     {
         public static DateTimeOffset ToDateTimeOffset(this Id id)
         {
-            long timestamp = id >> 22;
-            DateTimeOffset epoch = MonotonicTimer.Epoch;
+            return DateTimeOffset.FromUnixTimeMilliseconds(id.ToUnixTimeMilliseconds());
+        }
 
-            return DateTimeOffset.FromUnixTimeMilliseconds(timestamp + epoch.ToUnixTimeMilliseconds());
+        public static long ToUnixTimeMilliseconds(this Id id)
+        {
+            long timestamp = id >> 22;
+
+            return MonotonicTimer.Epoch.ToUnixTimeMilliseconds() + timestamp;
         }
     }
 }
