@@ -69,7 +69,7 @@ namespace SnowflakeId
             int processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
 
             Interlocked.Increment(ref s_increment);
-
+            
             int increment = s_increment & IncrementMask;
             
             unchecked

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Discord-like implementation of Snowflake IDs. Snowflakes are highly optimized, decentralized, K-ordered, unique identifiers represented as 64 bit integers.</Description>
+    <RepositoryUrl>https://github.com/aevitas/snowflake</RepositoryUrl>
+    <PackageTags>snowflake, discord, discord id, unique id, uuid, flake, flake id</PackageTags>
+    <Authors>aevitas</Authors>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Version>0.1.0-preview1</Version>
+    <PackageId>FlakeId</PackageId>
+    <Product>FlakeId</Product>
+    <PackageIcon>snowflake-96.png</PackageIcon>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\snowflake-96.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System;
+using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnostics.Windows.Configs;
 using BenchmarkDotNet.Running;
 
@@ -20,6 +21,12 @@ namespace SnowflakeId.Benchmarks
         public void Create_Single()
         {
             Id.Create();
+        }
+
+        [Benchmark]
+        public void Create_Guid()
+        {
+            Guid.NewGuid();
         }
     }
 }
