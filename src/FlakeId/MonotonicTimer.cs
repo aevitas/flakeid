@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace SnowflakeId
+namespace FlakeId
 {
     internal static class MonotonicTimer
     {

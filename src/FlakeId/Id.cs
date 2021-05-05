@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 
-namespace SnowflakeId
+namespace FlakeId
 {
     [DebuggerDisplay("{_value}")]
     public struct Id : IComparable<Id>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SnowflakeId.Extensions
+namespace FlakeId.Extensions
 {
     public static class IdExtensions
     {

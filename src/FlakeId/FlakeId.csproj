@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>Discord-like implementation of Snowflake IDs. Snowflakes are highly optimized, decentralized, K-ordered, unique identifiers represented as 64 bit integers.</Description>
+    <Description>Discord-like implementation of Snowflake IDs. Snowflakes are 64 bit, highly optimized, decentralized, K-ordered, unique identifiers.</Description>
     <RepositoryUrl>https://github.com/aevitas/snowflake</RepositoryUrl>
     <PackageTags>snowflake, discord, discord id, unique id, uuid, flake, flake id</PackageTags>
     <Authors>aevitas</Authors>

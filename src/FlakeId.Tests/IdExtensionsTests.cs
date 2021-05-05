@@ -1,8 +1,8 @@
 ﻿using System;
+using FlakeId.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SnowflakeId.Extensions;
 
-namespace SnowflakeId.Tests
+namespace FlakeId.Tests
 {
     [TestClass]
     public class IdExtensionsTests

@@ -3,7 +3,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnostics.Windows.Configs;
 using BenchmarkDotNet.Running;
 
-namespace SnowflakeId.Benchmarks
+namespace FlakeId.Benchmarks
 {
     internal class Program
     {

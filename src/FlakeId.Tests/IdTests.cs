@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace SnowflakeId.Tests
+namespace FlakeId.Tests
 {
     [TestClass]
     public class IdTests
