@@ -8,6 +8,8 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
     <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
+    <PackageReference Include="IdGen" Version="3.0.0" />
+    <PackageReference Include="NewId" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>
