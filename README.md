@@ -58,7 +58,7 @@ To put is simply, because all other available libraries at the time of writing c
 
 ## Performance
 
-We've benchmarked FlakeId on .NET 5 against [MassTransit's NewId](https://github.com/phatboyg/NewId) library, and IdGen [IdGen](https://github.com/RobThree/IdGen) both libraries are widely used. It is worth noting that NewId generates 128-bit integers.
+We've benchmarked FlakeId on .NET 5 against [MassTransit's NewId](https://github.com/phatboyg/NewId) library, and [IdGen](https://github.com/RobThree/IdGen) both libraries are widely used. It is worth noting that NewId generates 128-bit integers.
 
 We've also included `Guid.NewGuid` as a baseline benchmark, as it is very well optimized, and arguably the most widely used identifier generator in .NET.
 
