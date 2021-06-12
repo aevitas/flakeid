@@ -2,7 +2,7 @@
 
 # Flake ID
 
-Snowflake IDs were originally introduced by Twitter in 2010 as unique, decentralized IDs for Tweets. Their 8-byte size, ordered nature and guaranteed uniqueness make them ideal to use as resource identifiers. Since then, many applications at various scale have adopted Snoowflake-esque identifiers.
+Snowflake IDs were originally introduced by Twitter in 2010 as unique, decentralized IDs for Tweets. Their 8-byte size, ordered nature and guaranteed uniqueness make them ideal to use as resource identifiers. Since then, many applications at various scale have adopted Snowflake-esque identifiers.
 
 This repository contains an implementation of decentralized, K-ordered Snowflake IDs based on [the Discord Snowflake specification](https://discord.com/developers/docs/reference). The implementation heavily focuses on high-throughput, supporting upwards of 10.000 unique generations per second on commodity hardware.
 
