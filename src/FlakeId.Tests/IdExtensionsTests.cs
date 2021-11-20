@@ -27,5 +27,14 @@ namespace FlakeId.Tests
             
             Assert.IsTrue(now - timestamp < 100);
         }
+
+        [TestMethod]
+        public void Id_IsValid()
+        {
+            var id = Id.Create();
+            bool isValid = id.IsSnowflake();
+
+            Assert.IsTrue(isValid);
+        }
     }
 }

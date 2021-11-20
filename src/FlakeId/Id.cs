@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using FlakeId.Extensions;
 
 namespace FlakeId
 {
@@ -57,6 +58,30 @@ namespace FlakeId
             Id id = new Id();
 
             id.CreateInternal();
+
+            return id;
+        }
+
+        public static bool TryParse(long value, out Id id)
+        {
+            var input = new Id(value);
+
+            if (!input.IsSnowflake())
+            {
+                id = default;
+                return false;
+            }
+
+            id = input;
+            return true;
+        }
+
+        public static Id Parse(long value)
+        {
+            var id = new Id(value);
+
+            if (!id.IsSnowflake())
+                throw new FormatException("The specified value is not a valid snowflake");
 
             return id;
         }
