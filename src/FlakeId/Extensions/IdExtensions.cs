@@ -16,7 +16,7 @@ namespace FlakeId.Extensions
             return MonotonicTimer.Epoch.ToUnixTimeMilliseconds() + timestamp;
         }
 
-        public static bool IsValid(this Id id)
+        public static bool IsSnowflake(this Id id)
         {
             // There's no way to guarantee the specified value is a snowflake.
             // The closest we can get is by decomposing its components, and ensuring all of them are set

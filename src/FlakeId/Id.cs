@@ -66,7 +66,7 @@ namespace FlakeId
         {
             var input = new Id(value);
 
-            if (!input.IsValid())
+            if (!input.IsSnowflake())
             {
                 id = default;
                 return false;
@@ -80,7 +80,7 @@ namespace FlakeId
         {
             var id = new Id(value);
 
-            if (!id.IsValid())
+            if (!id.IsSnowflake())
                 throw new FormatException("The specified value is not a valid snowflake");
 
             return id;

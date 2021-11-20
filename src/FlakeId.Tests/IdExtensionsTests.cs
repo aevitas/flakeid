@@ -32,7 +32,7 @@ namespace FlakeId.Tests
         public void Id_IsValid()
         {
             var id = Id.Create();
-            bool isValid = id.IsValid();
+            bool isValid = id.IsSnowflake();
 
             Assert.IsTrue(isValid);
         }
