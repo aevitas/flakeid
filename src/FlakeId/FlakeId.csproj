@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net6.0;net5.0;netstandard2.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Discord-like implementation of Snowflake IDs. Snowflakes are 64 bit, highly optimized, decentralized, K-ordered, unique identifiers.</Description>
     <RepositoryUrl>https://github.com/aevitas/flakeid</RepositoryUrl>
