@@ -6,6 +6,12 @@ Snowflake IDs were originally introduced by Twitter in 2010 as unique, decentral
 
 This repository contains an implementation of decentralized, K-ordered Snowflake IDs based on [the Discord Snowflake specification](https://discord.com/developers/docs/reference). The implementation heavily focuses on high-throughput, supporting upwards of 10.000 unique generations per second on commodity hardware.
 
+You can grab the latest stable version from NuGet:
+
+```
+Install-Package FlakeId
+```
+
 ## How it works
 
 Every Snowflake fits in a 64-bit integer, consisting of various components that make it unique across generations.
