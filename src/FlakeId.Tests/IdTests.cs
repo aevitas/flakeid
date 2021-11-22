@@ -97,5 +97,13 @@ namespace FlakeId.Tests
             Assert.IsTrue(parse);
             Assert.AreEqual(id, parsed);
         }
+
+        [TestMethod]
+        public void Id_ToString()
+        {
+            long id = Id.Create();
+
+            Assert.AreEqual(((long)id).ToString(), id.ToString());
+        }
     }
 }

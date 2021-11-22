@@ -106,6 +106,8 @@ namespace FlakeId
             }
         }
 
+        public override string ToString() => _value.ToString();
+
         public static implicit operator long(Id id) => id._value;
 
         public static bool operator ==(Id left, Id right) => left._value == right._value;
