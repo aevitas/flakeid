@@ -66,32 +66,6 @@ To put is simply, because all other available libraries at the time of writing c
 
 Because each Snowflake ID is exactly 64 bits, and JavaScript engines such as v8 are limited to 56-bit floating point numbers, you may run into some problems when exposing your snowflakes to JavaScript clients. When exposing your IDs to clients that utilize JavaScript, such as via a REST API, you should consider serializing your IDs as `string` types instead. If a JavaScript client attempts to display a 64 bit integer, it'll often truncate the last few digits and set them to `0`, e.g.: `931124405369716700`. This will cause problems when the client attempts to make any subsequent requests using this ID.
 
-One way of solving this problem is by writing a custom `JsonConverter` that deals with `long` values that are likely to be Snowflake IDs. If you are using `System.Text.Json`, one such converter might look something like this:
-
-```csharp
-public class IdJsonConverter : JsonConverter<long>
-{
-    public override long Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return reader.GetInt64();
-    }
-
-    public override void Write(Utf8JsonWriter writer, long value, JsonSerializerOptions options)
-    {
-        if (Id.TryParse(value, out var id))
-            if (id.IsSnowflake())
-            {
-                writer.WriteStringValue(value.ToString());
-                return;
-            }
-
-        writer.WriteRawValue(value.ToString());
-    }
-}
-```
-
-This will automatically convert any `long` values that fulfill the criteria of being a snowflake to a `string`, ensuring you don't end up truncating those last few numbers. Do note that `IsSnowflake()` will return `true` for any number that fulfills all the criteria of a Snowflake; it doesn't necessarily have to be a snowflake!
-
 ## Performance
 
 We've benchmarked FlakeId on .NET 5 against [MassTransit's NewId](https://github.com/phatboyg/NewId) library, and [IdGen](https://github.com/RobThree/IdGen) both libraries are widely used. It is worth noting that NewId generates 128-bit integers.
