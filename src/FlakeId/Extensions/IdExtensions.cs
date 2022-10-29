@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace FlakeId.Extensions
 {
@@ -27,6 +28,13 @@ namespace FlakeId.Extensions
             long increment = id & 0b111111111111;
 
             return timestamp > 0 && thread > 0 && process > 0 && increment > 0;
+        }
+
+        public static string ToStringIdentifier(this Id id)
+        {
+            string identifier = id.ToString();
+
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(identifier));
         }
     }
 }
