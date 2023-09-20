@@ -5,6 +5,9 @@ using FlakeId.Extensions;
 
 namespace FlakeId
 {
+    /// <summary>
+    ///     Represents a unique, K-ordered, sortable identifier.
+    /// </summary>
     [DebuggerDisplay("{_value}")]
     public struct Id : IComparable<Id>
     {
@@ -37,6 +40,7 @@ namespace FlakeId
         private long _value;
 
         private static int s_increment;
+
         // Calling Process.GetCurrentProcess() is a very slow operation, as it has to query the operating system.
         // Because it's highly unlikely the process ID will change (if at all possible) during our run time, we'll cache it.
         private static int? s_processId;
@@ -53,6 +57,10 @@ namespace FlakeId
 
         public Id(long value) => _value = value;
 
+        /// <summary>
+        ///     Creates a new, unique ID.
+        /// </summary>
+        /// <returns></returns>
         public static Id Create()
         {
             Id id = new Id();
@@ -62,9 +70,16 @@ namespace FlakeId
             return id;
         }
 
+        /// <summary>
+        ///     Attempts to parse an ID from the specified <see cref="long" /> value. This method will return false if the
+        ///     specified value doesn't match the shape of a snowflake ID.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public static bool TryParse(long value, out Id id)
         {
-            var input = new Id(value);
+            Id input = new Id(value);
 
             if (!input.IsSnowflake())
             {
@@ -76,12 +91,21 @@ namespace FlakeId
             return true;
         }
 
+        /// <summary>
+        ///     Parses an ID from the specified <see cref="long" /> value, and throws an exception if the shape of the value
+        ///     doesn't match that of a valid ID.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
         public static Id Parse(long value)
         {
-            var id = new Id(value);
+            Id id = new Id(value);
 
             if (!id.IsSnowflake())
+            {
                 throw new FormatException("The specified value is not a valid snowflake");
+            }
 
             return id;
         }
@@ -94,9 +118,9 @@ namespace FlakeId
             int processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
 
             Interlocked.Increment(ref s_increment);
-            
+
             int increment = s_increment & IncrementMask;
-            
+
             unchecked
             {
                 _value = (timestamp << (ThreadIdBits + ProcessIdBits + IncrementBits))
@@ -119,7 +143,7 @@ namespace FlakeId
         public bool Equals(Id other) => _value == other._value;
 
         public override bool Equals(object obj) => obj is Id other && Equals(other);
-        
+
         public override int GetHashCode() => _value.GetHashCode();
     }
 }
