@@ -18,6 +18,6 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Build
-      run: dotnet build
+      run: dotnet build ./src/FlakeId.sln
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ./src/FlakeId.sln --no-build --verbosity normal
