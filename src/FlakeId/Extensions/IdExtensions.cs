@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 
 namespace FlakeId.Extensions
@@ -8,6 +8,10 @@ namespace FlakeId.Extensions
         public static DateTimeOffset ToDateTimeOffset(this Id id) =>
             DateTimeOffset.FromUnixTimeMilliseconds(id.ToUnixTimeMilliseconds());
 
+        private const int TimestampOffset = Id.IncrementBits + Id.ProcessIdBits + Id.ThreadIdBits;
+        private const int ThreadOffset = Id.IncrementBits + Id.ProcessIdBits;
+        private const int ProcessOffset = Id.IncrementBits;
+
         /// <summary>
         ///     Returns the timestamp component of the ID in UNIX timestamp format.
         /// </summary>
@@ -15,7 +19,7 @@ namespace FlakeId.Extensions
         /// <returns></returns>
         public static long ToUnixTimeMilliseconds(this Id id)
         {
-            long timestamp = id >> 22;
+            long timestamp = id >> TimestampOffset;
 
             return MonotonicTimer.Epoch.ToUnixTimeMilliseconds() + timestamp;
         }
@@ -33,10 +37,10 @@ namespace FlakeId.Extensions
             // There's no way to guarantee the specified value is a snowflake.
             // The closest we can get is by decomposing its components, and ensuring all of them are set
             // to values that would be valid for a snowflake.
-            long timestamp = id >> 22;
-            long thread = (id >> 17) & 0b11111;
-            long process = (id >> 12) & 0b11111;
-            long increment = id & 0b111111111111;
+            long timestamp = id >> TimestampOffset;
+            long thread = (id >> ThreadOffset) & Id.ThreadIdMask;
+            long process = (id >> ProcessOffset) & Id.ProcessIdMask;
+            long increment = id & Id.IncrementMask;
 
             return timestamp > 0 && thread > 0 && process > 0 && increment >= 0;
         }

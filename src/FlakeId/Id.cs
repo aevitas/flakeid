@@ -45,15 +45,15 @@ namespace FlakeId
         // Because it's highly unlikely the process ID will change (if at all possible) during our run time, we'll cache it.
         private static int? s_processId;
 
-        private const int TimestampBits = 42;
-        private const int ThreadIdBits = 5;
-        private const int ProcessIdBits = 5;
-        private const int IncrementBits = 12;
+        internal const int TimestampBits = 42;
+        internal const int ThreadIdBits = 5;
+        internal const int ProcessIdBits = 5;
+        internal const int IncrementBits = 12;
 
-        private const long TimestampMask = (1L << TimestampBits) - 1;
-        private const int ThreadIdMask = (1 << ThreadIdBits) - 1;
-        private const int ProcessIdMask = (1 << ProcessIdBits) - 1;
-        private const int IncrementMask = (1 << IncrementBits) - 1;
+        internal const long TimestampMask = (1L << TimestampBits) - 1;
+        internal const int ThreadIdMask = (1 << ThreadIdBits) - 1;
+        internal const int ProcessIdMask = (1 << ProcessIdBits) - 1;
+        internal const int IncrementMask = (1 << IncrementBits) - 1;
 
         public Id(long value) => _value = value;
 
