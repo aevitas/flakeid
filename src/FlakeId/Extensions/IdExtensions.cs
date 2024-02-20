@@ -12,7 +12,6 @@ namespace FlakeId.Extensions
         private const int ThreadOffset = Id.IncrementBits + Id.ProcessIdBits;
         private const int ProcessOffset = Id.IncrementBits;
 
-
         /// <summary>
         ///     Returns the timestamp component of the ID in UNIX timestamp format.
         /// </summary>
