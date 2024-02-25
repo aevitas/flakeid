@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using FlakeId.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlakeId.Tests;
@@ -18,6 +20,16 @@ public class IdTests
     }
 
     [TestMethod]
+    public void Id_CreateFromTimeStamp() 
+    {
+        // Example ID for this timestamp: 1211383614714445825
+        long timeStamp = 1708886760167;
+        Id id = Id.Create(timeStamp);
+
+        Assert.AreEqual(timeStamp, id.ToUnixTimeMilliseconds());
+    }
+
+    [TestMethod]
     public void Id_CreateManyFast()
     {
         Id[] ids = Enumerable.Range(0, 1000).Select(_ => Id.Create()).ToArray();
@@ -31,7 +43,7 @@ public class IdTests
     [TestMethod]
     public async Task Id_CreateManyDelayed()
     {
-        List<Id> ids = new();
+        List<Id> ids = [];
 
         for (int i = 0; i < 100; i++)
         {
@@ -60,7 +72,7 @@ public class IdTests
     {
         // The sequence in which Ids are generated should be equal to a set of sorted Ids.
         Id[] ids = Enumerable.Range(0, 1000).Select(_ => Id.Create()).ToArray();
-        Id[] sorted = ids.OrderBy(i => i).ToArray();
+        Id[] sorted = [.. ids.OrderBy(i => i)];
 
         Assert.IsTrue(ids.SequenceEqual(sorted));
     }
