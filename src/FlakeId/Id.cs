@@ -71,6 +71,27 @@ namespace FlakeId
         }
 
         /// <summary>
+        ///     Creates a new ID based on the provided timestamp in milliseconds. 
+        ///     When using this overload, make sure you take the timezone of the provided timestamp into consideration.
+        /// </summary>
+        /// <param name="timeStampMs"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">Timestamps can not be negative</exception>
+        public static Id Create(long timeStampMs)
+        {
+            if (timeStampMs < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeStampMs));
+            }
+
+            Id id = new Id();
+
+            id.CreateInternal(timeStampMs);
+
+            return id;
+        }
+
+        /// <summary>
         ///     Attempts to parse an ID from the specified <see cref="long" /> value. This method will return false if the
         ///     specified value doesn't match the shape of a snowflake ID.
         /// </summary>
@@ -110,9 +131,9 @@ namespace FlakeId
             return id;
         }
 
-        private void CreateInternal()
+        private void CreateInternal(long timeStampMs = 0)
         {
-            long milliseconds = MonotonicTimer.ElapsedMilliseconds;
+            long milliseconds = timeStampMs == 0 ? MonotonicTimer.ElapsedMilliseconds : timeStampMs;
             long timestamp = milliseconds & TimestampMask;
             int threadId = Thread.CurrentThread.ManagedThreadId & ThreadIdMask;
             int processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
@@ -130,7 +151,7 @@ namespace FlakeId
             }
         }
 
-        public override string ToString() => _value.ToString();
+        public override readonly string ToString() => _value.ToString();
 
         public static implicit operator long(Id id) => id._value;
 
@@ -138,12 +159,12 @@ namespace FlakeId
 
         public static bool operator !=(Id left, Id right) => !(left == right);
 
-        public int CompareTo(Id other) => _value.CompareTo(other._value);
+        public readonly int CompareTo(Id other) => _value.CompareTo(other._value);
 
-        public bool Equals(Id other) => _value == other._value;
+        public readonly bool Equals(Id other) => _value == other._value;
 
-        public override bool Equals(object obj) => obj is Id other && Equals(other);
+        public override readonly bool Equals(object obj) => obj is Id other && Equals(other);
 
-        public override int GetHashCode() => _value.GetHashCode();
+        public override readonly int GetHashCode() => _value.GetHashCode();
     }
 }
