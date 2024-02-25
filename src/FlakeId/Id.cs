@@ -85,8 +85,14 @@ namespace FlakeId
             }
 
             Id id = new Id();
+            long relativeTimeStamp = timeStampMs - MonotonicTimer.Epoch.ToUnixTimeMilliseconds();
 
-            id.CreateInternal(timeStampMs);
+            if (relativeTimeStamp < 0) 
+            {
+                throw new ArgumentException("Specified timestamp would result in a negative ID (it's before instance epoch)");
+            }
+
+            id.CreateInternal(relativeTimeStamp);
 
             return id;
         }

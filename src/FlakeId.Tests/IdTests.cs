@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FlakeId.Extensions;
@@ -22,11 +21,18 @@ public class IdTests
     [TestMethod]
     public void Id_CreateFromTimeStamp() 
     {
-        // Example ID for this timestamp: 1211383614714445825
-        long timeStamp = 1708886760167;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        long timeStamp = now.ToUnixTimeMilliseconds();
         Id id = Id.Create(timeStamp);
 
         Assert.AreEqual(timeStamp, id.ToUnixTimeMilliseconds());
+    }
+
+    [TestMethod]
+    public void Id_CreateFromTimeStamp_RecentTimeStamp()
+    {
+        Assert.ThrowsException<ArgumentException>(
+            () => Id.Create(new DateTimeOffset(2010, 1, 1, 0, 0, 0, 0, TimeSpan.Zero).ToUnixTimeMilliseconds()));
     }
 
     [TestMethod]
@@ -83,5 +89,14 @@ public class IdTests
         long id = Id.Create();
 
         Assert.AreEqual(id.ToString(), id.ToString());
+    }
+
+    [TestMethod]
+    public void Id_ContainsTimeZoneComponent()
+    {
+        DateTimeOffset timeStamp = new(2020, 1, 1, 0, 0, 0, TimeSpan.FromHours(7));
+        Id id = Id.Create(timeStamp.ToUnixTimeMilliseconds());
+
+        Assert.AreEqual(timeStamp.ToUnixTimeMilliseconds(), id.ToUnixTimeMilliseconds());
     }
 }
