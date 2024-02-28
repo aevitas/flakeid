@@ -56,5 +56,18 @@ namespace FlakeId.Extensions
 
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(identifier));
         }
+
+        /// <summary>
+        ///     Returns an ID that is valid for the specified timestamp.
+        ///     Note that consecutive calls with the same timestamp will yield different IDs, as the other components of the ID will still differ.
+        ///     In other words, the time component of the ID is guaranteed to be equal to the specified timestamp.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="timeStamp"></param>
+        /// <returns></returns>
+        public static Id FromDateTimeOffset(this Id id, DateTimeOffset timeStamp)
+        {
+            return Id.Create(timeStamp.ToUnixTimeMilliseconds());
+        }
     }
 }
