@@ -72,27 +72,48 @@ Alternatively, there is a `ToStringIdentifier()` extension method available whic
 
 ## Performance
 
-We've benchmarked FlakeId on .NET 5 against [MassTransit's NewId](https://github.com/phatboyg/NewId) library, and [IdGen](https://github.com/RobThree/IdGen) both libraries are widely used. It is worth noting that NewId generates 128-bit integers.
+We've benchmarked FlakeId on .NET 8 against [MassTransit's NewId](https://github.com/phatboyg/NewId) library, and [IdGen](https://github.com/RobThree/IdGen) both libraries are widely used. It is worth noting that NewId generates 128-bit integers.
 
 We've also included `Guid.NewGuid` as a baseline benchmark, as it is very well optimized, and arguably the most widely used identifier generator in .NET.
 
 ```
-BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19042
-Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
-.NET Core SDK=5.0.201
-  [Host]     : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
-  DefaultJob : .NET Core 5.0.4 (CoreCLR 5.0.421.11614, CoreFX 5.0.421.11614), X64 RyuJIT
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 5 5600X, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 8.0.201
+  [Host]     : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  DefaultJob : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
 
 
-|         Method |        Mean |      Error |     StdDev | Code Size |
-|--------------- |------------:|-----------:|-----------:|----------:|
-| Single_FlakeId |    30.44 ns |   0.091 ns |   0.080 ns |     254 B |
-|    Single_Guid |    59.47 ns |   0.681 ns |   0.637 ns |     111 B |
-|   Single_NewId |    75.27 ns |   0.323 ns |   0.270 ns |      40 B |
-|   Single_IdGen | 2,445.98 ns | 176.372 ns | 520.036 ns |     687 B |
+| Method         | Mean        | Error     | StdDev     | Code Size |
+|--------------- |------------:|----------:|-----------:|----------:|
+| Single_FlakeId |    26.48 ns |  0.020 ns |   0.019 ns |     358 B |
+| Single_Guid    |    41.85 ns |  0.481 ns |   0.450 ns |     245 B |
+| Single_NewId   |    31.83 ns |  0.013 ns |   0.012 ns |     303 B |
+| Single_IdGen   | 3,473.96 ns | 69.295 ns | 168.673 ns |     671 B |
 ```
 
 In this benchmark, IdGen was configured to `SpinWait` in the event multiple IDs were generated in the same instant. It spent most of its time in a spinlock.
+
+Below are the benchmark results for FlakeId running on multiple runtimes.
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 5 5600X, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 8.0.201
+  [Host]   : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 5.0 : .NET 5.0.17 (5.0.1722.21314), X64 RyuJIT AVX2
+  .NET 6.0 : .NET 6.0.27 (6.0.2724.6912), X64 RyuJIT AVX2
+  .NET 7.0 : .NET 7.0.16 (7.0.1624.6629), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+
+
+| Method         | Job      | Runtime  | Mean     | Error    | StdDev   | Code Size |
+|--------------- |--------- |--------- |---------:|---------:|---------:|----------:|
+| Single_FlakeId | .NET 5.0 | .NET 5.0 | 27.85 ns | 0.111 ns | 0.103 ns |     254 B |
+| Single_FlakeId | .NET 6.0 | .NET 6.0 | 26.37 ns | 0.056 ns | 0.053 ns |     215 B |
+| Single_FlakeId | .NET 7.0 | .NET 7.0 | 26.72 ns | 0.211 ns | 0.176 ns |     209 B |
+| Single_FlakeId | .NET 8.0 | .NET 8.0 | 26.56 ns | 0.085 ns | 0.071 ns |     358 B |
+```
 
 ## Issues
 
