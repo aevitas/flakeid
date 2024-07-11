@@ -8,7 +8,7 @@
     <PackageTags>snowflake, discord, discord id, unique id, uuid, flake, flake id</PackageTags>
     <Authors>aevitas</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <PackageId>FlakeId</PackageId>
     <Product>FlakeId</Product>
     <PackageIcon>snowflake-96.png</PackageIcon>
