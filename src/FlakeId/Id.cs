@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading;
 using FlakeId.Extensions;
@@ -142,7 +142,10 @@ namespace FlakeId
             long milliseconds = timeStampMs == 0 ? MonotonicTimer.ElapsedMilliseconds : timeStampMs;
             long timestamp = milliseconds & TimestampMask;
             int threadId = Thread.CurrentThread.ManagedThreadId & ThreadIdMask;
-            int processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
+            // int processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
+            if (s_processId is null)
+                s_processId = Process.GetCurrentProcess().Id & ProcessIdMask;
+            int processId = s_processId.Value;
 
             Interlocked.Increment(ref s_increment);
 
