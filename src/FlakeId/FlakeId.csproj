@@ -1,19 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>Discord inspired Twitter like implementation of Snowflake IDs, focused on performance. Snowflakes are 64 bit, highly optimized, decentralized, K-ordered, unique identifiers.</Description>
+    <Description>Discord inspired, Twitter like implementation of Snowflake IDs, focused on performance. Snowflakes are 64 bit, highly optimized, decentralized, K-ordered, unique identifiers.</Description>
     <RepositoryUrl>https://github.com/aevitas/flakeid</RepositoryUrl>
     <PackageTags>snowflake, discord, discord id, unique id, uuid, flake, flake id</PackageTags>
     <Authors>aevitas</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.1.3</Version>
+    <Version>1.2.0</Version>
     <PackageId>FlakeId</PackageId>
     <Product>FlakeId</Product>
     <PackageIcon>snowflake-96.png</PackageIcon>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
