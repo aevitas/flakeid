@@ -160,7 +160,7 @@ namespace FlakeId
             }
         }
 
-        public override readonly string ToString() => _value.ToString();
+        public override string ToString() => _value.ToString();
 
         public static implicit operator long(Id id) => id._value;
 
@@ -168,12 +168,12 @@ namespace FlakeId
 
         public static bool operator !=(Id left, Id right) => !(left == right);
 
-        public readonly int CompareTo(Id other) => _value.CompareTo(other._value);
+        public int CompareTo(Id other) => _value.CompareTo(other._value);
 
-        public readonly bool Equals(Id other) => _value == other._value;
+        public bool Equals(Id other) => _value == other._value;
 
-        public override readonly bool Equals(object obj) => obj is Id other && Equals(other);
+        public override bool Equals(object obj) => obj is Id other && Equals(other);
 
-        public override readonly int GetHashCode() => _value.GetHashCode();
+        public override int GetHashCode() => _value.GetHashCode();
     }
 }
