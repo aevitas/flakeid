@@ -147,9 +147,7 @@ namespace FlakeId
                 s_processId = Process.GetCurrentProcess().Id & ProcessIdMask;
             int processId = s_processId.Value;
 
-            Interlocked.Increment(ref s_increment);
-
-            int increment = s_increment & IncrementMask;
+            int increment = Interlocked.Increment(ref s_increment) & IncrementMask;
 
             unchecked
             {
