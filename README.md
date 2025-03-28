@@ -64,11 +64,9 @@ To put is simply, because all other available libraries at the time of writing c
 
 ## JavaScript Clients
 
-Because each Snowflake ID is exactly 64 bits, and JavaScript engines such as v8 are limited to 56-bit floating point numbers, you may run into some problems when exposing your snowflakes to JavaScript clients. When exposing your IDs to clients that utilize JavaScript, such as via a REST API, you should consider serializing your IDs as `string` types instead. If a JavaScript client attempts to display a 64 bit integer, it'll often truncate the last few digits and set them to `0`, e.g.: `931124405369716700`. This will cause problems when the client attempts to make any subsequent requests using this ID.
+Be careful when exposing IDs to JavaScript and Node clients. Most JS engines are limited to 56 bit floating point numbers. This may lead to IDs having their last 8 bits truncated, e.g.: `931124405369716748` might become `931124405369716700` when interpreted by a JS client.
 
-To prevent this, the serving application can either call `ToString()` on the `Id` and expose the string value to any users. Subsequent requests would then accept a string instead of an `Id` or `long` value. The risk here is that the client would still interpret this as a `number` type - which would make sense, and would work fine until things break horribly.
-
-Alternatively, there is a `ToStringIdentifier()` extension method available which represents the FlakeId in a YouTube-esque (but longer) format, e.g.: `MTAzNjI5ODQxMTY5MDA5ODY4OQ==`. This value can be translated to its original value by calling `Convert.FromBase64String` or your language equivalent. For JavaScript or NodeJS clients, this is the recommended method for exposing flake IDs.
+There is a `ToStringIdentifier()` extension method available to safely expose IDs to JS clients. This is a Base64 encoded representation of the ID, which can be used by the JS client for subsequent requests. Alternatively, you could also expose your IDs as a `string`, though be careful JS clients recognize this value as a `string`, and not as a `number`.
 
 ## Performance
 
