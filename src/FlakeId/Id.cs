@@ -39,7 +39,7 @@ namespace FlakeId
 
         private long _value;
 
-        private static int s_increment;
+        private static long s_prevId;
 
         // Calling Process.GetCurrentProcess() is a very slow operation, as it has to query the operating system.
         // Because it's highly unlikely the process ID will change (if at all possible) during our run time, we'll cache it.
@@ -89,7 +89,8 @@ namespace FlakeId
 
             if (relativeTimeStamp < 0)
             {
-                throw new ArgumentException("Specified timestamp would result in a negative ID (it's before instance epoch)");
+                throw new ArgumentException(
+                    "Specified timestamp would result in a negative ID (it's before instance epoch)");
             }
 
             id.CreateInternal(relativeTimeStamp);
@@ -139,22 +140,58 @@ namespace FlakeId
 
         private void CreateInternal(long timeStampMs = 0)
         {
-            long milliseconds = timeStampMs == 0 ? MonotonicTimer.ElapsedMilliseconds : timeStampMs;
-            long timestamp = milliseconds & TimestampMask;
-            int threadId = Environment.CurrentManagedThreadId & ThreadIdMask;
-
             if (s_processId is null)
-                s_processId = Process.GetCurrentProcess().Id & ProcessIdMask;
-            int processId = s_processId.Value;
-
-            int increment = Interlocked.Increment(ref s_increment) & IncrementMask;
-
-            unchecked
             {
-                _value = (timestamp << (ThreadIdBits + ProcessIdBits + IncrementBits))
-                         + (threadId << (ProcessIdBits + IncrementBits))
-                         + (processId << IncrementBits)
-                         + increment;
+                s_processId = Process.GetCurrentProcess().Id & ProcessIdMask;
+            }
+
+            int processId = s_processId.Value;
+            SpinWait spinner = default;
+
+            while (true)
+            {
+                long prev = Interlocked.Read(ref s_prevId);
+
+                long lastTimestamp = (prev >> (ThreadIdBits + ProcessIdBits + IncrementBits));
+                long currentTimestamp = timeStampMs == 0 ? MonotonicTimer.ElapsedMilliseconds : timeStampMs;
+
+                if (currentTimestamp < lastTimestamp)
+                {
+                    throw new InvalidOperationException(
+                        "Clock shifted backwards; can't reliably generate ID");
+                }
+
+                int increment;
+                if (currentTimestamp == lastTimestamp)
+                {
+                    increment = (int)(prev & IncrementMask) + 1;
+
+                    // Increment overflows, wait for the next ms to avoid it being 0 for ages
+                    if (increment > IncrementMask)
+                    {
+                        spinner.SpinOnce();
+                        continue;
+                    }
+                }
+                else
+                {
+                    increment = 0;
+                }
+
+                int threadId = Environment.CurrentManagedThreadId & ThreadIdMask;
+
+                long newValue = (currentTimestamp << (ThreadIdBits + ProcessIdBits + IncrementBits))
+                                | (long)(threadId << (ProcessIdBits + IncrementBits))
+                                | (long)(processId << IncrementBits)
+                                | (long)increment;
+
+                // Atomically update the last value. If the original value was changed by another
+                // thread, this will fail and we'll loop again.
+                if (Interlocked.CompareExchange(ref s_prevId, newValue, prev) == prev)
+                {
+                    _value = newValue;
+                    break;
+                }
             }
         }
 
