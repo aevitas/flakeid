@@ -12,7 +12,18 @@ You can grab the latest stable version from NuGet:
 Install-Package FlakeId
 ```
 
-## How it works
+## Generating IDs
+
+The package revolves around an `Id` struct, with several extensions for convenience. To create a new &mdash; guaranteed unique &mdash; ID:
+
+```csharp
+long id = Id.Create();
+```
+
+Every `Id` is implicitly convertible to a `long`, sortable, and a natural fit for database ID columns.
+
+
+# Anatomy
 
 Every Snowflake fits in a 64-bit integer, consisting of various components that make it unique across generations.
 The layout of the components that comprise a snowflake can be expressed as:
@@ -23,7 +34,7 @@ Timestamp                                   Thread Proc  Increment
 64                                          22     17    12          0
 ```
 
-The Timestamp component is represented as the milliseconds since the first second of 2015. Since we're using all 64 bits available, this epoch can be any point in time, as long as it's in the past. If the epoch is set to a point in time in the future, it may result in negative snowflakes being generated.
+The Timestamp component is represented as the milliseconds since the first second of 2015 (the default **epoch**). Since we're using all 64 bits available, this epoch can be any point in time, as long as it's in the past. If the epoch is set to a point in time in the future, it may result in negative snowflakes being generated.
 
 Where the original Discord reference mentions worker ID and process ID, we substitute these with the
 thread and process ID respectively, as the combination of these two provide sufficient uniqueness, and they are
@@ -31,21 +42,18 @@ the closest we can get to the original specification within the .NET ecosystem.
 
 The Increment component is a monotonically incrementing number, which is incremented every time a snowflake is generated.
 This is in contrast with some other flake-ish implementations, which only increment the counter any time a snowflake is 
-generated twice at the exact same instant in time. We believe Discord's implementation is more correct here,
-as even two snowflakes that are generated at the exact same point in time will not be identical, because of their increments.
+generated twice at the exact same instant in time. 
 
-## Usage
+We have opted to increment every time an ID is generated, rather than when two or more IDs are generated at the exact same millisecond. 
+The reasoning behind this is that it's vastly simpler - we can avoid locking altogether - and thus, more performant. It is also closer to Discord's implementation, which was referenced when designing this library.
 
-FlakeId revolves around a single type: `Id`. This type effectively embodies a `long`, and can be stored and used anywhere a signed, 8-byte integer is used.
+# Epoch
 
-Creating a Snowflake is simple:
+The timestamp component is a delta from a predefined instant in time, this instant is known as the **epoch**.
 
-```
-    long id = Id.Create();
-    Id id = Id.Create();
-```
+The default epoch is `01/01/2015 +0`. The implementation will generate valid IDs for about 139 years, after which they will start to roll over.
 
-Every `Id` is implicitly convertable to `long`, which means that you don't have to make any changes to your types if you want to start using FlakeId, assuming they are already using `long` IDs. Conversely, every `long` can be represented as an `Id` by constructing an ID from it. Do keep in mind that while every Snowflake is a `long`, not every `long` is a Snowflake.
+While it is fine to modify the code to choose a different epoch for your specific use case, you should always take care to only use a single epoch per domain, as modifying it afterwards might lead to collisions.
 
 ## Timestamps
 
@@ -62,11 +70,12 @@ FlakeId provides two extension methods:
 
 To put is simply, because all other available libraries at the time of writing created either 128-bit integers, or weren't performing very well. We strongly believe that a fundamental piece of code such as an ID generator should do its job out of the box, while being extremely efficient.
 
-## JavaScript Clients
+## Web Clients
 
-Be careful when exposing IDs to JavaScript and Node clients. Most JS engines are limited to 56 bit floating point numbers. This may lead to IDs having their last 8 bits truncated, e.g.: `931124405369716748` might become `931124405369716700` when interpreted by a JS client.
+⚠️⚠️⚠️
+> Be careful when exposing IDs to JavaScript and Node clients. Most JS engines are limited to 56 bit floating point numbers. This may lead to IDs having their last 8 bits truncated, e.g.: `931124405369716748` might become `931124405369716700` when interpreted by a JS client.
 
-There is a `ToStringIdentifier()` extension method available to safely expose IDs to JS clients. This is a Base64 encoded representation of the ID, which can be used by the JS client for subsequent requests. Alternatively, you could also expose your IDs as a `string`, though be careful JS clients recognize this value as a `string`, and not as a `number`.
+When exposing your IDs to web clients, it is recommended to use the `ToBase64String()` extension and having your client interpret the ID as a `string`.  
 
 ## Performance
 
@@ -115,7 +124,7 @@ AMD Ryzen 5 5600X, 1 CPU, 12 logical and 6 physical cores
 
 ## Issues
 
-If you have an issue with FlakeId, please open an issue and describe your problem as accurately as you can.
+If you find any issues when using FlakeId, please open an issue and describe your problem as accurately as you can.
 
 ## Contributions
 
