@@ -4,7 +4,7 @@
 
 Snowflake IDs were originally introduced by Twitter in 2010 as unique, decentralized IDs for Tweets. Their 8-byte size, ordered nature and guaranteed uniqueness make them ideal to use as resource identifiers. Since then, many applications at various scale have adopted Snowflake-esque identifiers.
 
-This repository contains an implementation of decentralized, K-ordered Snowflake IDs based on [the Discord Snowflake specification](https://discord.com/developers/docs/reference). The implementation heavily focuses on high-throughput, supporting upwards of 10.000 unique generations per second on commodity hardware.
+This repository contains an implementation of decentralized, K-ordered Snowflake IDs based on [the Discord Snowflake specification](https://discord.com/developers/docs/reference). The implementation heavily focuses on high-throughput, supporting upwards of 10.000 unique generations per second on commodity hardware (up to the theoretical limit of around 4 million per second).
 
 You can grab the latest stable version from NuGet:
 
@@ -40,13 +40,6 @@ Where the original Discord reference mentions worker ID and process ID, we subst
 thread and process ID respectively, as the combination of these two provide sufficient uniqueness, and they are
 the closest we can get to the original specification within the .NET ecosystem.
 
-The Increment component is a monotonically incrementing number, which is incremented every time a snowflake is generated.
-This is in contrast with some other flake-ish implementations, which only increment the counter any time a snowflake is 
-generated twice at the exact same instant in time. 
-
-We have opted to increment every time an ID is generated, rather than when two or more IDs are generated at the exact same millisecond. 
-The reasoning behind this is that it's vastly simpler - we can avoid locking altogether - and thus, more performant. It is also closer to Discord's implementation, which was referenced when designing this library.
-
 # Epoch
 
 The timestamp component is a delta from a predefined instant in time, this instant is known as the **epoch**.
@@ -79,9 +72,8 @@ When exposing your IDs to web clients, it is recommended to use the `ToBase64Str
 
 ## Performance
 
-We've benchmarked FlakeId on .NET 8 against [MassTransit's NewId](https://github.com/phatboyg/NewId) library, and [IdGen](https://github.com/RobThree/IdGen) both libraries are widely used. It is worth noting that NewId generates 128-bit integers.
+We've benchmarked FlakeId on .NET 8 against [IdGen](https://github.com/RobThree/IdGen), which is another implementation of Snowflake IDs in .NET. FlakeId performs significantly better.
 
-We've also included `Guid.NewGuid` as a baseline benchmark, as it is very well optimized, and arguably the most widely used identifier generator in .NET.
 
 ```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
@@ -93,9 +85,7 @@ AMD Ryzen 5 5600X, 1 CPU, 12 logical and 6 physical cores
 
 | Method         | Mean        | Error     | StdDev     | Code Size |
 |--------------- |------------:|----------:|-----------:|----------:|
-| Single_FlakeId |    26.48 ns |  0.020 ns |   0.019 ns |     358 B |
-| Single_Guid    |    41.85 ns |  0.481 ns |   0.450 ns |     245 B |
-| Single_NewId   |    31.83 ns |  0.013 ns |   0.012 ns |     303 B |
+| Single_FlakeId |    349.2 ns | 6.58 ns   |  6.16 ns   |     358 B |
 | Single_IdGen   | 3,473.96 ns | 69.295 ns | 168.673 ns |     671 B |
 ```
 
@@ -104,22 +94,21 @@ In this benchmark, IdGen was configured to `SpinWait` in the event multiple IDs 
 Below are the benchmark results for FlakeId running on multiple runtimes.
 
 ```
-BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
-AMD Ryzen 5 5600X, 1 CPU, 12 logical and 6 physical cores
-.NET SDK 8.0.201
-  [Host]   : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
-  .NET 5.0 : .NET 5.0.17 (5.0.1722.21314), X64 RyuJIT AVX2
-  .NET 6.0 : .NET 6.0.27 (6.0.2724.6912), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.16 (7.0.1624.6629), X64 RyuJIT AVX2
-  .NET 8.0 : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+BenchmarkDotNet v0.13.12, macOS 15.6.1 (24G90) [Darwin 24.6.0]
+Apple M1 Pro, 1 CPU, 10 logical and 10 physical cores
+.NET SDK 9.0.100
+  [Host]   : .NET 8.0.2 (8.0.224.6711), Arm64 RyuJIT AdvSIMD
+  .NET 7.0 : .NET 7.0.11 (7.0.1123.42427), Arm64 RyuJIT AdvSIMD
+  .NET 8.0 : .NET 8.0.2 (8.0.224.6711), Arm64 RyuJIT AdvSIMD
+  .NET 9.0 : .NET 9.0.0 (9.0.24.52809), Arm64 RyuJIT AdvSIMD
 
 
-| Method         | Job      | Runtime  | Mean     | Error    | StdDev   | Code Size |
-|--------------- |--------- |--------- |---------:|---------:|---------:|----------:|
-| Single_FlakeId | .NET 5.0 | .NET 5.0 | 27.85 ns | 0.111 ns | 0.103 ns |     254 B |
-| Single_FlakeId | .NET 6.0 | .NET 6.0 | 26.37 ns | 0.056 ns | 0.053 ns |     215 B |
-| Single_FlakeId | .NET 7.0 | .NET 7.0 | 26.72 ns | 0.211 ns | 0.176 ns |     209 B |
-| Single_FlakeId | .NET 8.0 | .NET 8.0 | 26.56 ns | 0.085 ns | 0.071 ns |     358 B |
+| Method         | Job      | Runtime  | Mean     | Error   | StdDev   |
+|--------------- |--------- |--------- |---------:|--------:|---------:|
+| Single_FlakeId | .NET 7.0 | .NET 7.0 | 354.0 ns | 6.87 ns | 13.89 ns |
+| Single_FlakeId | .NET 8.0 | .NET 8.0 | 356.6 ns | 7.17 ns |  9.81 ns |
+| Single_FlakeId | .NET 9.0 | .NET 9.0 | 349.2 ns | 6.58 ns |  6.16 ns |
+
 ```
 
 ## Issues
