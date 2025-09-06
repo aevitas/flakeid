@@ -21,7 +21,7 @@ namespace FlakeId
         // 111111111111111111111111111111111111111111  11111  11111 111111111111
         // 64                                          22     17    12          0
         //
-        // The Timestamp component is represented as the milliseconds since the first second of 2015. 
+        // The Timestamp component is represented as the milliseconds since the first second of 2015.
         // Since we're using all 64 bits available, this epoch can be any point in time, as long as it's in the past.
         // If the epoch is set to a point in time in the future, it may result in negative snowflakes being generated.
         //
@@ -30,11 +30,11 @@ namespace FlakeId
         // the closest we can get to the original specification within the .NET ecosystem.
         //
         // The Increment component is a monotonically incrementing number, which is incremented every time a snowflake is generated.
-        // This is in contrast with some other flake-ish implementations, which only increment the counter any time a snowflake is 
+        // This is in contrast with some other flake-ish implementations, which only increment the counter any time a snowflake is
         // generated twice at the exact same instant in time. We believe Discord's implementation is more correct here,
         // as even two snowflakes that are generated at the exact same point in time will not be identical, because of their increments.
         //
-        // This implementation is optimised for high-throughput applications, while providing IDs that are roughly sortable, and 
+        // This implementation is optimised for high-throughput applications, while providing IDs that are roughly sortable, and
         // with a very high degree of uniqueness.
 
         private long _value;
@@ -71,7 +71,7 @@ namespace FlakeId
         }
 
         /// <summary>
-        ///     Creates a new ID based on the provided timestamp in milliseconds. 
+        ///     Creates a new ID based on the provided timestamp in milliseconds.
         ///     When using this overload, make sure you take the timezone of the provided timestamp into consideration.
         /// </summary>
         /// <param name="timeStampMs"></param>
@@ -87,7 +87,7 @@ namespace FlakeId
             Id id = new Id();
             long relativeTimeStamp = timeStampMs - MonotonicTimer.Epoch.ToUnixTimeMilliseconds();
 
-            if (relativeTimeStamp < 0) 
+            if (relativeTimeStamp < 0)
             {
                 throw new ArgumentException("Specified timestamp would result in a negative ID (it's before instance epoch)");
             }
@@ -141,8 +141,8 @@ namespace FlakeId
         {
             long milliseconds = timeStampMs == 0 ? MonotonicTimer.ElapsedMilliseconds : timeStampMs;
             long timestamp = milliseconds & TimestampMask;
-            int threadId = Thread.CurrentThread.ManagedThreadId & ThreadIdMask;
-            // int processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
+            int threadId = Environment.CurrentManagedThreadId & ThreadIdMask;
+
             if (s_processId is null)
                 s_processId = Process.GetCurrentProcess().Id & ProcessIdMask;
             int processId = s_processId.Value;
