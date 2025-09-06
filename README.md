@@ -34,7 +34,7 @@ Timestamp                                   Thread Proc  Increment
 64                                          22     17    12          0
 ```
 
-The Timestamp component is represented as the milliseconds since the first second of 2015, also called the `epoch`. Since we're using all 64 bits available, this epoch can be any point in time, as long as it's in the past. If the epoch is set to a point in time in the future, it may result in negative snowflakes being generated.
+The Timestamp component is represented as the milliseconds since the first second of 2015 (the default **epoch**). Since we're using all 64 bits available, this epoch can be any point in time, as long as it's in the past. If the epoch is set to a point in time in the future, it may result in negative snowflakes being generated.
 
 Where the original Discord reference mentions worker ID and process ID, we substitute these with the
 thread and process ID respectively, as the combination of these two provide sufficient uniqueness, and they are
@@ -46,6 +46,14 @@ generated twice at the exact same instant in time.
 
 We have opted to increment every time an ID is generated, rather than when two or more IDs are generated at the exact same millisecond. 
 The reasoning behind this is that it's vastly simpler - we can avoid locking altogether - and thus, more performant. It is also closer to Discord's implementation, which was referenced when designing this library.
+
+# Epoch
+
+The timestamp component is a delta from a predefined instant in time, this instant is known as the **epoch**.
+
+The default epoch is `01/01/2015 +0`. The implementation will generate valid IDs for about 139 years, after which they will start to roll over.
+
+While it is fine to modify the code to choose a different epoch for your specific use case, you should always take care to only use a single epoch per domain, as modifying it afterwards might lead to collisions.
 
 ## Timestamps
 
