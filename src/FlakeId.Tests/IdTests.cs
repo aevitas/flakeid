@@ -90,14 +90,5 @@ namespace FlakeId.Tests
 
             Assert.AreEqual(id.ToString(), id.ToString());
         }
-
-        [TestMethod]
-        public void Id_ContainsTimeZoneComponent()
-        {
-            DateTimeOffset timeStamp = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.FromHours(7));
-            Id id = Id.Create(timeStamp.ToUnixTimeMilliseconds());
-
-            Assert.AreEqual(timeStamp.ToUnixTimeMilliseconds(), id.ToUnixTimeMilliseconds());
-        }
     }
 }

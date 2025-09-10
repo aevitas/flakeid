@@ -6,8 +6,10 @@ using MassTransit;
 
 namespace FlakeId.Benchmarks
 {
+#if _WINDOWS
     [DisassemblyDiagnoser]
     [InliningDiagnoser(true, null)]
+#endif
     public class IdCreationBenchmarks
     {
         private static readonly IdGenerator s_idGenerator = new IdGenerator(10,
@@ -30,7 +32,7 @@ namespace FlakeId.Benchmarks
         {
             NewId.Next();
         }
-        
+
         [Benchmark]
         public void Single_IdGen()
         {

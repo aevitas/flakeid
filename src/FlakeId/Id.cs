@@ -9,7 +9,7 @@ namespace FlakeId
     ///     Represents a unique, K-ordered, sortable identifier.
     /// </summary>
     [DebuggerDisplay("{_value}")]
-    public struct Id : IComparable<Id>
+    public struct Id : IComparable<Id>, IEquatable<Id>
     {
         // This implementation of Snowflake ID is based on the specification as published by Discord:
         // https://discord.com/developers/docs/reference
@@ -21,7 +21,7 @@ namespace FlakeId
         // 111111111111111111111111111111111111111111  11111  11111 111111111111
         // 64                                          22     17    12          0
         //
-        // The Timestamp component is represented as the milliseconds since the first second of 2015. 
+        // The Timestamp component is represented as the milliseconds since the first second of 2015.
         // Since we're using all 64 bits available, this epoch can be any point in time, as long as it's in the past.
         // If the epoch is set to a point in time in the future, it may result in negative snowflakes being generated.
         //
@@ -30,16 +30,16 @@ namespace FlakeId
         // the closest we can get to the original specification within the .NET ecosystem.
         //
         // The Increment component is a monotonically incrementing number, which is incremented every time a snowflake is generated.
-        // This is in contrast with some other flake-ish implementations, which only increment the counter any time a snowflake is 
+        // This is in contrast with some other flake-ish implementations, which only increment the counter any time a snowflake is
         // generated twice at the exact same instant in time. We believe Discord's implementation is more correct here,
         // as even two snowflakes that are generated at the exact same point in time will not be identical, because of their increments.
         //
-        // This implementation is optimised for high-throughput applications, while providing IDs that are roughly sortable, and 
+        // This implementation is optimised for high-throughput applications, while providing IDs that are roughly sortable, and
         // with a very high degree of uniqueness.
 
         private long _value;
 
-        private static int s_increment;
+        private static long s_prevId;
 
         // Calling Process.GetCurrentProcess() is a very slow operation, as it has to query the operating system.
         // Because it's highly unlikely the process ID will change (if at all possible) during our run time, we'll cache it.
@@ -71,7 +71,7 @@ namespace FlakeId
         }
 
         /// <summary>
-        ///     Creates a new ID based on the provided timestamp in milliseconds. 
+        ///     Creates a new ID based on the provided timestamp in milliseconds.
         ///     When using this overload, make sure you take the timezone of the provided timestamp into consideration.
         /// </summary>
         /// <param name="timeStampMs"></param>
@@ -87,9 +87,10 @@ namespace FlakeId
             Id id = new Id();
             long relativeTimeStamp = timeStampMs - MonotonicTimer.Epoch.ToUnixTimeMilliseconds();
 
-            if (relativeTimeStamp < 0) 
+            if (relativeTimeStamp < 0)
             {
-                throw new ArgumentException("Specified timestamp would result in a negative ID (it's before instance epoch)");
+                throw new ArgumentException(
+                    "Specified timestamp would result in a negative ID (it's before instance epoch)");
             }
 
             id.CreateInternal(relativeTimeStamp);
@@ -139,22 +140,58 @@ namespace FlakeId
 
         private void CreateInternal(long timeStampMs = 0)
         {
-            long milliseconds = timeStampMs == 0 ? MonotonicTimer.ElapsedMilliseconds : timeStampMs;
-            long timestamp = milliseconds & TimestampMask;
-            int threadId = Thread.CurrentThread.ManagedThreadId & ThreadIdMask;
-            // int processId = s_processId ??= Process.GetCurrentProcess().Id & ProcessIdMask;
             if (s_processId is null)
-                s_processId = Process.GetCurrentProcess().Id & ProcessIdMask;
-            int processId = s_processId.Value;
-
-            int increment = Interlocked.Increment(ref s_increment) & IncrementMask;
-
-            unchecked
             {
-                _value = (timestamp << (ThreadIdBits + ProcessIdBits + IncrementBits))
-                         + (threadId << (ProcessIdBits + IncrementBits))
-                         + (processId << IncrementBits)
-                         + increment;
+                s_processId = Process.GetCurrentProcess().Id & ProcessIdMask;
+            }
+
+            int processId = s_processId.Value;
+            SpinWait spinner = default;
+
+            while (true)
+            {
+                long prev = Interlocked.Read(ref s_prevId);
+
+                long lastTimestamp = (prev >> (ThreadIdBits + ProcessIdBits + IncrementBits));
+                long currentTimestamp = timeStampMs == 0 ? MonotonicTimer.ElapsedMilliseconds : timeStampMs;
+
+                if (currentTimestamp < lastTimestamp)
+                {
+                    throw new InvalidOperationException(
+                        "Clock shifted backwards; can't reliably generate ID");
+                }
+
+                int increment;
+                if (currentTimestamp == lastTimestamp)
+                {
+                    increment = (int)(prev & IncrementMask) + 1;
+
+                    // Increment overflows, wait for the next ms to avoid it being 0 for ages
+                    if (increment > IncrementMask)
+                    {
+                        spinner.SpinOnce();
+                        continue;
+                    }
+                }
+                else
+                {
+                    increment = 0;
+                }
+
+                int threadId = Environment.CurrentManagedThreadId & ThreadIdMask;
+
+                long newValue = (currentTimestamp << (ThreadIdBits + ProcessIdBits + IncrementBits))
+                                | (long)(threadId << (ProcessIdBits + IncrementBits))
+                                | (long)(processId << IncrementBits)
+                                | (long)increment;
+
+                // Atomically update the last value. If the original value was changed by another
+                // thread, this will fail and we'll loop again.
+                if (Interlocked.CompareExchange(ref s_prevId, newValue, prev) == prev)
+                {
+                    _value = newValue;
+                    break;
+                }
             }
         }
 
