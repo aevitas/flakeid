@@ -34,15 +34,11 @@ namespace FlakeId.Extensions
         /// <returns></returns>
         public static bool IsSnowflake(this Id id)
         {
-            // There's no way to guarantee the specified value is a snowflake.
-            // The closest we can get is by decomposing its components, and ensuring all of them are set
-            // to values that would be valid for a snowflake.
+            // Validates that the ID has a non-zero timestamp.
+            // Thread , Process, and Increment can legitimately be 0, so checking them for > 0 results in false negatives.
             long timestamp = id >> TimestampOffset;
-            long thread = (id >> ThreadOffset) & Id.ThreadIdMask;
-            long process = (id >> ProcessOffset) & Id.ProcessIdMask;
-            long increment = id & Id.IncrementMask;
 
-            return timestamp > 0 && thread > 0 && process > 0 && increment >= 0;
+            return timestamp > 0;
         }
 
         /// <summary>
