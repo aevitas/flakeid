@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using FlakeId.Extensions;
+using System.Text.Json.Serialization;
 
 namespace FlakeId
 {
@@ -9,6 +10,7 @@ namespace FlakeId
     ///     Represents a unique, K-ordered, sortable identifier.
     /// </summary>
     [DebuggerDisplay("{_value}")]
+    [JsonConverter(typeof(FlakeIdJsonConverter))]
     public struct Id : IComparable<Id>, IEquatable<Id>
     {
         // This implementation of Snowflake ID is based on the specification as published by Discord:

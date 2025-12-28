@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlakeId.Tests
@@ -72,6 +73,35 @@ namespace FlakeId.Tests
         public void Id_TryParse_Problematic()
         {
             Id id = Id.Parse(1108047973760811023);
+        }
+
+        public class IdJson
+        {
+            public required Id Id { get; set; }
+        }
+
+        [TestMethod]
+        public void Id_JsonConverter_Read()
+        {
+            const string json = "{\"Id\":1108047973760811023}";
+
+            var obj = JsonSerializer.Deserialize<IdJson>(json);
+
+            Assert.IsNotNull(obj);
+            Assert.AreEqual(1108047973760811023, obj.Id);
+        }
+
+        [TestMethod]
+        public void Id_JsonConverter_Write()
+        {
+            var obj = new IdJson
+            {
+                Id = Id.Parse(1108047973760811023)
+            };
+
+            string json = JsonSerializer.Serialize(obj);
+
+            Assert.AreEqual("{\"Id\":1108047973760811023}", json);
         }
     }
 }
