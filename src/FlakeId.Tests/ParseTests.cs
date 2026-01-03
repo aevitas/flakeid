@@ -101,7 +101,7 @@ namespace FlakeId.Tests
 
             string json = JsonSerializer.Serialize(obj);
 
-            Assert.AreEqual("{\"Id\":1108047973760811023}", json);
+            Assert.AreEqual("{\"Id\":\"1108047973760811023\"}", json);
         }
     }
 }

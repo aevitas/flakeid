@@ -29,7 +29,7 @@ namespace FlakeId.Extensions
 
         public override void Write(Utf8JsonWriter writer, Id value, JsonSerializerOptions options)
         {
-            writer.WriteNumberValue(value);
+            writer.WriteStringValue(value.ToString());
         }
     }
 }

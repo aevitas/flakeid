@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Discord inspired, Twitter like implementation of Snowflake IDs, focused on performance. Snowflakes are 64 bit, highly optimized, decentralized, K-ordered, unique identifiers.</Description>
     <RepositoryUrl>https://github.com/aevitas/flakeid</RepositoryUrl>
@@ -36,8 +36,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="10.0.1" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
-
 </Project>
