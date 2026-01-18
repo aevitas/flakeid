@@ -1,0 +1,41 @@
+name: Publish to NuGet
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Extract Version
+        id: get_version
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Detected version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Restore dependencies
+        run: dotnet restore src/FlakeId/FlakeId.csproj
+
+      - name: Build
+        run: dotnet build src/FlakeId/FlakeId.csproj --configuration Release --no-restore /p:Version=${{ steps.get_version.outputs.version }}
+
+      - name: Run Tests
+        run: dotnet test src/FlakeId.Tests/FlakeId.Tests.csproj --configuration Release --no-build
+
+      - name: Pack
+        run: dotnet pack src/FlakeId/FlakeId.csproj --configuration Release --no-build --output ./nupkgs /p:Version=${{ steps.get_version.outputs.version }}
+
+      - name: Push to NuGet
+        run: dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
