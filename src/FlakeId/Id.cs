@@ -47,6 +47,15 @@ namespace FlakeId
         // Because it's highly unlikely the process ID will change (if at all possible) during our run time, we'll cache it.
         private static int? s_processId;
 
+        // The configured process ID, if set by the user through the ProcessId property. This takes precedence over
+        // the OS-assigned process ID, which is useful in containerized environments (e.g., Docker) where the
+        // process ID is always 1.
+        private static int? s_configuredProcessId;
+
+        // The name of the environment variable that can be used to configure the process ID for Snowflake generation.
+        // This is useful in containerized environments (e.g., Docker) where the process ID is always 1.
+        internal const string ProcessIdEnvironmentVariable = "FLAKEID_PROCESS_ID";
+
         internal const int TimestampBits = 42;
         internal const int ThreadIdBits = 5;
         internal const int ProcessIdBits = 5;
@@ -58,6 +67,31 @@ namespace FlakeId
         internal const int IncrementMask = (1 << IncrementBits) - 1;
 
         public Id(long value) => _value = value;
+
+        /// <summary>
+        ///     Gets or sets the process ID component used in Snowflake generation.
+        ///     When set, this value is used instead of the OS-assigned process ID,
+        ///     which is useful in containerized environments (e.g., Docker) where
+        ///     the process ID is always 1.
+        ///     The value is masked to <see cref="ProcessIdBits" /> bits (5 bits, range 0-31).
+        ///     Set to null to revert to automatic process ID detection.
+        /// </summary>
+        /// <remarks>
+        ///     The precedence for process ID resolution is:
+        ///     1. The value set through this property.
+        ///     2. The <c>FLAKEID_PROCESS_ID</c> environment variable.
+        ///     3. The OS-assigned process ID.
+        /// </remarks>
+        public static int? ProcessId
+        {
+            get => s_configuredProcessId;
+            set
+            {
+                s_configuredProcessId = value;
+                // Reset the cached process ID so it is re-evaluated on the next call to CreateInternal.
+                s_processId = null;
+            }
+        }
 
         /// <summary>
         ///     Creates a new, unique ID.
@@ -144,7 +178,7 @@ namespace FlakeId
         {
             if (s_processId is null)
             {
-                s_processId = Process.GetCurrentProcess().Id & ProcessIdMask;
+                s_processId = ResolveProcessId();
             }
 
             int processId = s_processId.Value;
@@ -195,6 +229,34 @@ namespace FlakeId
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        ///     Resolves the process ID to use for Snowflake generation. The resolution order is:
+        ///     1. The value set through <see cref="ProcessId" />.
+        ///     2. The <c>FLAKEID_PROCESS_ID</c> environment variable.
+        ///     3. The OS-assigned process ID.
+        ///     The result is masked to <see cref="ProcessIdBits" /> bits.
+        /// </summary>
+        /// <returns>The resolved and masked process ID.</returns>
+        private static int ResolveProcessId()
+        {
+            // Use the explicitly configured process ID, if set.
+            if (s_configuredProcessId.HasValue)
+            {
+                return s_configuredProcessId.Value & ProcessIdMask;
+            }
+
+            // Check for an environment variable override. This is useful in containerized
+            // environments (e.g., Docker) where the process ID is always 1.
+            string envValue = Environment.GetEnvironmentVariable(ProcessIdEnvironmentVariable);
+            if (int.TryParse(envValue, out int envProcessId))
+            {
+                return envProcessId & ProcessIdMask;
+            }
+
+            // Fall back to the OS-assigned process ID.
+            return Process.GetCurrentProcess().Id & ProcessIdMask;
         }
 
         public override string ToString() => _value.ToString();

@@ -59,6 +59,44 @@ FlakeId provides two extension methods:
     long createdAtUnixMilliseconds = id.ToUnixTimeMilliseconds();
 ```
 
+## Process ID Configuration
+
+In containerized environments such as Docker, the process ID of the entrypoint is almost always `1`. Since FlakeId uses the process ID as part of its uniqueness composite, this can reduce the uniqueness guarantee when running multiple containers.
+
+To address this, FlakeId supports configuring a custom process ID through either a static property or an environment variable.
+
+### Via Code
+
+Set the `Id.ProcessId` property at application startup, before any IDs are generated:
+
+```csharp
+Id.ProcessId = 7; // Must be in the range 0-31 (5 bits); values are automatically masked.
+```
+
+Set it back to `null` to revert to automatic detection:
+
+```csharp
+Id.ProcessId = null;
+```
+
+### Via Environment Variable
+
+Set the `FLAKEID_PROCESS_ID` environment variable. This is especially useful for containerized deployments:
+
+```bash
+docker run -e FLAKEID_PROCESS_ID=7 my-app
+```
+
+### Precedence
+
+When multiple sources are configured, the process ID is resolved in the following order:
+
+1. The value set through `Id.ProcessId`
+2. The `FLAKEID_PROCESS_ID` environment variable
+3. The OS-assigned process ID
+
+> **Note:** The process ID is cached after the first ID is generated. Setting `Id.ProcessId` clears the cache and forces re-evaluation. Changing the environment variable after the first ID has been generated will have no effect unless `Id.ProcessId` is also set (to any value, including `null`).
+
 ## Why create FlakeId?
 
 To put is simply, because all other available libraries at the time of writing created either 128-bit integers, or weren't performing very well. We strongly believe that a fundamental piece of code such as an ID generator should do its job out of the box, while being extremely efficient.
